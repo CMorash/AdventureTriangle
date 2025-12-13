@@ -2,22 +2,28 @@
 
 import Card from '@/app/components/ui/Card';
 import PartnerForm from '@/app/components/forms/PartnerForm';
+import { useTheme } from '@/app/contexts/ThemeContext';
 
 export default function PartnerFormSection() {
+  const { isDarkMode } = useTheme();
+  
   return (
     <section 
-      className="py-20 px-4 sm:px-6 lg:px-8" 
+      className="py-20 px-4 sm:px-6 lg:px-8 dark:bg-gradient-to-b dark:from-neutral-900/50 dark:to-neutral-800/50" 
       id="partner-form"
       style={{
-        background: 'linear-gradient(to bottom, rgba(255, 255, 255, 0.53125), rgba(255, 255, 255, 0.625))'
+        background: isDarkMode 
+          ? 'rgb(10, 10, 10)'
+          : 'rgb(210, 210, 210)',
+        transition: 'background 0.3s ease'
       }}
     >
       <div className="container mx-auto max-w-2xl">
         <div className="text-center mb-12">
-          <h2 className="text-4xl sm:text-5xl font-bold text-neutral-900 mb-4">
+          <h2 className="text-4xl sm:text-5xl font-bold text-neutral-900 dark:text-white mb-4">
             Partner Application
           </h2>
-          <p className="text-xl text-neutral-700 max-w-xl mx-auto">
+          <p className="text-xl text-neutral-700 dark:text-neutral-300 max-w-xl mx-auto">
             Join our global marketplace and connect with adventure seekers worldwide. Fill out the form below to get started.
           </p>
         </div>

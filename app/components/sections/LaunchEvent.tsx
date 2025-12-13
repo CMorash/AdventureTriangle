@@ -2,25 +2,33 @@
 
 import Card from '@/app/components/ui/Card';
 import EventForm from '@/app/components/forms/EventForm';
+import { useTheme } from '@/app/contexts/ThemeContext';
+
+
 
 export default function LaunchEvent() {
+  const { isDarkMode } = useTheme();
+  
   return (
     <section 
-      className="py-20 px-4 sm:px-6 lg:px-8" 
+      className="py-20 px-4 sm:px-6 lg:px-8 dark:bg-gradient-to-b dark:from-neutral-900/50 dark:to-neutral-800/50" 
       id="launch-event"
       style={{
-        background: 'linear-gradient(to bottom, rgba(255, 255, 255, 0.625), rgba(255, 255, 255, 0.71875))'
+        background: isDarkMode 
+          ? 'rgb(10, 10, 10)'
+          : 'rgb(210, 210, 210)',
+        transition: 'background 0.3s ease'
       }}
     >
       <div className="container mx-auto max-w-2xl">
         <div className="text-center mb-12">
-          <h2 className="text-4xl sm:text-5xl font-bold text-neutral-900 mb-4">
+          <h2 className="text-4xl sm:text-5xl font-bold text-neutral-900 dark:text-white mb-4">
             Launch Event Registration
           </h2>
-          <p className="text-xl text-neutral-700 max-w-xl mx-auto mb-2">
+          <p className="text-xl text-neutral-700 dark:text-neutral-300 max-w-xl mx-auto mb-2">
             Join us for our official launch event on January 26, 2026
           </p>
-          <p className="text-lg text-neutral-600">
+          <p className="text-lg text-neutral-600 dark:text-neutral-400">
             Toronto, Canada • Available in-person and virtual
           </p>
         </div>

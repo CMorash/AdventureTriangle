@@ -3,8 +3,11 @@
 import { motion } from 'framer-motion';
 import Button from '@/app/components/ui/Button';
 import EarthBackground from '@/app/components/ui/EarthBackground';
+import { useTheme } from '@/app/contexts/ThemeContext';
 
 export default function Hero() {
+  const { isDarkMode } = useTheme();
+  
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
@@ -28,7 +31,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight drop-shadow-lg"
+            className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white dark:text-white mb-6 leading-tight drop-shadow-lg"
           >
             Discover Your Next
             <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-green-400 to-amber-400">
@@ -40,7 +43,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-xl sm:text-2xl text-neutral-200 mb-10 max-w-2xl mx-auto leading-relaxed drop-shadow-md"
+            className="text-xl sm:text-2xl text-neutral-200 dark:text-neutral-200 mb-10 max-w-2xl mx-auto leading-relaxed drop-shadow-md"
           >
             Join Adventure Triangle - the global marketplace connecting travelers with verified adventure experiences across water, air, and land.
           </motion.p>
@@ -73,7 +76,7 @@ export default function Hero() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.8 }}
-            className="mt-8 text-sm text-neutral-300"
+            className="mt-8 text-sm text-neutral-300 dark:text-neutral-300"
           >
             Launching January 26, 2026 • Toronto, Canada
           </motion.p>

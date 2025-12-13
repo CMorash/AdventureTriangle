@@ -16,7 +16,7 @@ export default function Card({ children, className = '', hover = true }: CardPro
       transition={{ duration: 0.5 }}
       whileHover={hover ? { y: -4, transition: { duration: 0.2 } } : undefined}
       className={`
-        bg-white rounded-2xl shadow-lg p-6 border border-neutral-100
+        bg-white dark:bg-neutral-800 rounded-2xl shadow-lg p-6 border border-neutral-100 dark:border-neutral-700
         ${hover ? 'hover:shadow-xl transition-shadow duration-300' : ''}
         ${className}
       `}

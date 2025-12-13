@@ -88,19 +88,19 @@ export default function EventForm({ onSuccess }: EventFormProps) {
       />
 
       <div>
-        <label className="block text-sm font-medium text-neutral-700 mb-2">
+        <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
           Attendance Type <span className="text-red-500">*</span>
         </label>
         <select
           {...register('attendanceType')}
-          className="w-full px-4 py-3 rounded-xl border-2 border-neutral-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:border-blue-500 focus:ring-blue-500"
+          className="w-full px-4 py-3 rounded-xl border-2 border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-neutral-800 focus:border-blue-500 focus:ring-blue-500"
         >
           <option value="in-person">In-Person</option>
           <option value="virtual">Virtual</option>
           <option value="both">Both</option>
         </select>
         {errors.attendanceType && (
-          <p className="mt-1 text-sm text-red-600">{errors.attendanceType.message}</p>
+          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.attendanceType.message}</p>
         )}
       </div>
 
@@ -108,8 +108,8 @@ export default function EventForm({ onSuccess }: EventFormProps) {
         <div
           className={`p-4 rounded-xl ${
             submitStatus.type === 'success'
-              ? 'bg-green-50 text-green-800 border border-green-200'
-              : 'bg-red-50 text-red-800 border border-red-200'
+              ? 'bg-green-50 dark:bg-green-900/30 text-green-800 dark:text-green-300 border border-green-200 dark:border-green-800'
+              : 'bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800'
           }`}
         >
           {submitStatus.message}

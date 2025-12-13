@@ -6,12 +6,14 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+import { useTheme } from '@/app/contexts/ThemeContext';
 
 interface EarthBackgroundProps {
   className?: string;
 }
 
 export default function EarthBackground({ className = '' }: EarthBackgroundProps) {
+  const { isDarkMode } = useTheme();
   const containerRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
@@ -20,9 +22,18 @@ export default function EarthBackground({ className = '' }: EarthBackgroundProps
   const earthRef = useRef<THREE.Mesh | null>(null);
   const cloudsRef = useRef<THREE.Mesh | null>(null);
   const sunLightRef = useRef<THREE.DirectionalLight | null>(null);
-  const animationFrameRef = useRef<number>();
+  const animationFrameRef = useRef<number | undefined>(undefined);
   const targetZRef = useRef(7.2);
   const targetSunYRef = useRef(3.0);
+  const dayMapRef = useRef<THREE.Texture | null>(null);
+  const nightMapRef = useRef<THREE.Texture | null>(null);
+  const cloudMatRef = useRef<THREE.MeshLambertMaterial | null>(null);
+  const transitionProgressRef = useRef(0);
+  const transitionStartTimeRef = useRef(0);
+  const isTransitioningRef = useRef(false);
+  const previousDarkModeRef = useRef<boolean | null>(null);
+  const currentBlendFactorRef = useRef(isDarkMode ? 1.0 : 0.0); // Track current blend state
+  const targetDarkModeRef = useRef(isDarkMode); // Track target dark mode state for animation loop
 
   useEffect(() => {
     const container = containerRef.current;
@@ -40,7 +51,6 @@ export default function EarthBackground({ className = '' }: EarthBackgroundProps
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
-    renderer.physicallyCorrectLights = true;
     container.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
@@ -54,9 +64,10 @@ export default function EarthBackground({ className = '' }: EarthBackgroundProps
       0.6,
       0.1
     );
-    bloomPass.threshold = 0.15;
-    bloomPass.strength = 0.9;
-    bloomPass.radius = 0.6;
+    // Adjust bloom based on dark mode - gentle bloom in light mode, more in dark mode
+    bloomPass.threshold = isDarkMode ? 0.15 : 0.35; // Higher threshold = less bloom
+    bloomPass.strength = isDarkMode ? 0.9 : 0.45; // Gentle but visible bloom in light mode
+    bloomPass.radius = isDarkMode ? 0.6 : 0.4; // Moderate radius in light mode
     composer.addPass(bloomPass);
     composerRef.current = composer;
 
@@ -81,7 +92,7 @@ export default function EarthBackground({ className = '' }: EarthBackgroundProps
       }
     };
     
-    const onTextureError = (error: ErrorEvent | string) => {
+    const onTextureError = (error: unknown) => {
       console.error('Texture loading error:', error);
       texturesLoaded++;
       // Continue rendering even if some textures fail
@@ -101,11 +112,13 @@ export default function EarthBackground({ className = '' }: EarthBackgroundProps
         onTextureLoad();
       },
       undefined,
-      (error) => {
+      (error: unknown) => {
         console.error('Failed to load day map:', error);
-        onTextureError(error);
+        onTextureError(error as ErrorEvent | string);
       }
     );
+    dayMapRef.current = dayMap;
+    
     // Skip .tif files - browsers don't support them
     // Create placeholder textures for normal and specular maps
     const normalMap = null; // Will be skipped in material
@@ -117,14 +130,15 @@ export default function EarthBackground({ className = '' }: EarthBackgroundProps
       BASE + '8k_earth_clouds.jpg',
       onTextureLoad,
       undefined,
-      onTextureError
+      (error: unknown) => onTextureError(error)
     );
     const nightMap = texLoader.load(
       BASE + '8k_earth_nightmap.jpg',
       onTextureLoad,
       undefined,
-      onTextureError
+      (error: unknown) => onTextureError(error)
     );
+    nightMapRef.current = nightMap;
 
     // Configure textures for high-resolution rendering
     // Set color space for color textures
@@ -147,16 +161,63 @@ export default function EarthBackground({ className = '' }: EarthBackgroundProps
     const RADIUS = 2.9;
     const geo = new THREE.SphereGeometry(RADIUS, 160, 160);
 
-    const mat = new THREE.MeshPhongMaterial({
-      map: dayMap,
-      // Skip normalMap and specularMap since .tif files aren't supported
-      shininess: 10,
-      emissiveMap: nightMap,
-      emissive: new THREE.Color(0xffffff),
-      emissiveIntensity: 0.9,
+    // Create a shader material that can blend between day and night textures
+    // Use targetDarkModeRef to ensure correct initial state even if theme changed before textures loaded
+    const initialBlend = targetDarkModeRef.current ? 1.0 : 0.0;
+    const earthShaderMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        dayTexture: { value: dayMap },
+        nightTexture: { value: nightMap },
+        blendFactor: { value: initialBlend }, // 0 = day, 1 = night
+        emissiveIntensity: { value: initialBlend * 0.1 }, // Very subtle city light glow
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        varying vec3 vNormal;
+        void main() {
+          vUv = uv;
+          vNormal = normalize(normalMatrix * normal);
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform sampler2D dayTexture;
+        uniform sampler2D nightTexture;
+        uniform float blendFactor;
+        uniform float emissiveIntensity;
+        varying vec2 vUv;
+        varying vec3 vNormal;
+        
+        void main() {
+          vec4 dayColor = texture2D(dayTexture, vUv);
+          vec4 nightColor = texture2D(nightTexture, vUv);
+          
+          // Blend between day and night textures
+          // blendFactor: 0.0 = day, 1.0 = night
+          vec4 blendedColor = mix(dayColor, nightColor, blendFactor);
+          
+          // Add very subtle emissive glow for night mode city lights only
+          // The night map should be darker than day map - keep emissive minimal
+          vec3 emissive = vec3(0.0);
+          if (blendFactor > 0.01) {
+            // Extract only the brightest parts (city lights) from night texture
+            float brightness = dot(nightColor.rgb, vec3(0.299, 0.587, 0.114));
+            // Only apply emissive to very bright areas (city lights) - use higher threshold
+            float lightMask = smoothstep(0.4, 0.7, brightness);
+            vec3 cityLights = nightColor.rgb * lightMask;
+            // Very subtle emissive - only enhance brightest city lights
+            // Multiply by blendFactor to ensure it fades during transition
+            emissive = cityLights * emissiveIntensity * blendFactor * 0.5;
+          }
+          
+          // Final color: base texture (night map should be darker) + very subtle city light glow
+          // The night map texture itself should be the main visual, emissive is just accent
+          gl_FragColor = vec4(blendedColor.rgb + emissive, blendedColor.a);
+        }
+      `,
     });
 
-    const earth = new THREE.Mesh(geo, mat);
+    const earth = new THREE.Mesh(geo, earthShaderMaterial);
     scene.add(earth);
     earthRef.current = earth;
 
@@ -165,8 +226,11 @@ export default function EarthBackground({ className = '' }: EarthBackgroundProps
     const cloudMat = new THREE.MeshLambertMaterial({
       map: cloudsMap,
       transparent: true,
-      opacity: 0.7,
+      opacity: isDarkMode ? 0.15 : 0.7, // Much less visible in dark mode
+      emissive: isDarkMode ? new THREE.Color(0x000000) : new THREE.Color(0x000000),
+      emissiveIntensity: 0,
     });
+    cloudMatRef.current = cloudMat;
     const clouds = new THREE.Mesh(cloudGeo, cloudMat);
     scene.add(clouds);
     cloudsRef.current = clouds;
@@ -292,10 +356,55 @@ export default function EarthBackground({ className = '' }: EarthBackgroundProps
       if (texturesReady) {
         // idle rotation
         if (earthRef.current) {
-          earthRef.current.rotation.y += 0.0009;
+          earthRef.current.rotation.y += 0.0002;
         }
         if (cloudsRef.current) {
-          cloudsRef.current.rotation.y += 0.00105;
+          cloudsRef.current.rotation.y += 0.0003;
+        }
+        
+        // Handle smooth texture transition
+        if (isTransitioningRef.current && earthRef.current) {
+          const elapsed = (Date.now() - transitionStartTimeRef.current) / 1000; // seconds
+          const duration = 2.0; // 2 seconds
+          
+          const mat = earthRef.current.material as THREE.ShaderMaterial;
+          if (mat.uniforms) {
+            const targetBlend = targetDarkModeRef.current ? 1.0 : 0.0; // Target: 1.0 for dark (night), 0.0 for light (day)
+            const startBlend = currentBlendFactorRef.current; // Start from current blend state
+            
+            if (elapsed < duration) {
+              // Smooth transition using easeInOutCubic
+              const t = elapsed / duration;
+              const easeT = t < 0.5 
+                ? 4 * t * t * t 
+                : 1 - Math.pow(-2 * t + 2, 3) / 2;
+              
+              // Interpolate from current state to target state
+              const currentBlend = startBlend + (targetBlend - startBlend) * easeT;
+              currentBlendFactorRef.current = currentBlend;
+              
+              mat.uniforms.blendFactor.value = currentBlend;
+              mat.uniforms.emissiveIntensity.value = currentBlend * 0.1; // Very subtle emissive for city lights
+            } else {
+              // Transition complete - set final values and stop transitioning
+              currentBlendFactorRef.current = targetBlend;
+              mat.uniforms.blendFactor.value = targetBlend;
+              mat.uniforms.emissiveIntensity.value = targetBlend * 0.1; // Very subtle emissive for city lights
+              isTransitioningRef.current = false;
+            }
+          }
+        } else if (!isTransitioningRef.current && earthRef.current) {
+          // When not transitioning, ensure values match the current mode
+          const mat = earthRef.current.material as THREE.ShaderMaterial;
+          if (mat.uniforms) {
+            const targetBlend = targetDarkModeRef.current ? 1.0 : 0.0;
+            // Only update if there's a mismatch (shouldn't happen, but safety check)
+            if (Math.abs(mat.uniforms.blendFactor.value - targetBlend) > 0.01) {
+              currentBlendFactorRef.current = targetBlend;
+              mat.uniforms.blendFactor.value = targetBlend;
+              mat.uniforms.emissiveIntensity.value = targetBlend * 0.1; // Very subtle emissive for city lights
+            }
+          }
         }
       }
 
@@ -362,7 +471,12 @@ export default function EarthBackground({ className = '' }: EarthBackgroundProps
 
       // Dispose geometries and materials
       geo.dispose();
-      mat.dispose();
+      if (earthRef.current?.material) {
+        const material = earthRef.current.material;
+        if (!Array.isArray(material)) {
+          material.dispose();
+        }
+      }
       cloudGeo.dispose();
       cloudMat.dispose();
       atmosphereGeo.dispose();
@@ -374,6 +488,62 @@ export default function EarthBackground({ className = '' }: EarthBackgroundProps
       textures.forEach(texture => texture.dispose());
     };
   }, []);
+
+  // Update Earth material and clouds when dark mode changes
+  useEffect(() => {
+    // Update target dark mode ref immediately so animation loop can read it
+    targetDarkModeRef.current = isDarkMode;
+    
+    // Start smooth texture transition only when mode actually changes
+    // Check if earth and textures are ready
+    if (earthRef.current && dayMapRef.current && nightMapRef.current) {
+      const mat = earthRef.current.material as THREE.ShaderMaterial;
+      if (mat.uniforms) {
+        // Only start transition if dark mode actually changed (not on initial mount)
+        if (previousDarkModeRef.current !== null && previousDarkModeRef.current !== isDarkMode) {
+          // Start transition from current blend state to target state
+          isTransitioningRef.current = true;
+          transitionStartTimeRef.current = Date.now();
+          // Don't update currentBlendFactorRef here - it will be updated during animation
+        } else if (previousDarkModeRef.current === null) {
+          // Initial mount - set initial state without transition
+          const initialBlend = isDarkMode ? 1.0 : 0.0;
+          currentBlendFactorRef.current = initialBlend;
+          mat.uniforms.blendFactor.value = initialBlend;
+          mat.uniforms.emissiveIntensity.value = initialBlend * 0.1; // Very subtle emissive for city lights
+        }
+        previousDarkModeRef.current = isDarkMode;
+      }
+    } else if (previousDarkModeRef.current !== null && previousDarkModeRef.current !== isDarkMode) {
+      // Textures aren't loaded yet, but theme changed - start transition once textures are ready
+      // The animation loop will handle the transition once textures are loaded
+      isTransitioningRef.current = true;
+      transitionStartTimeRef.current = Date.now();
+      previousDarkModeRef.current = isDarkMode;
+    } else if (previousDarkModeRef.current === null) {
+      // Initial mount, textures not ready yet - just set the initial state
+      previousDarkModeRef.current = isDarkMode;
+    }
+    
+    // Update cloud opacity immediately (no transition needed)
+    if (cloudMatRef.current) {
+      cloudMatRef.current.opacity = isDarkMode ? 0.15 : 0.7;
+      cloudMatRef.current.needsUpdate = true;
+    }
+    
+    // Update bloom settings based on dark mode
+    if (composerRef.current) {
+      const bloomPass = composerRef.current.passes.find(
+        (pass: any) => pass instanceof UnrealBloomPass
+      ) as UnrealBloomPass | undefined;
+      
+      if (bloomPass) {
+        bloomPass.threshold = isDarkMode ? 0.15 : 0.35; // Higher threshold = less bloom
+        bloomPass.strength = isDarkMode ? 0.9 : 0.45; // Gentle but visible bloom in light mode
+        bloomPass.radius = isDarkMode ? 0.6 : 0.4; // Moderate radius in light mode
+      }
+    }
+  }, [isDarkMode]);
 
   return (
     <div

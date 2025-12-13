@@ -84,7 +84,7 @@ export default function BetaForm({ onSuccess }: BetaFormProps) {
       />
 
       <div>
-        <label className="block text-sm font-medium text-neutral-700 mb-2">
+        <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
           Adventure Interests
         </label>
         <div className="space-y-2">
@@ -94,9 +94,9 @@ export default function BetaForm({ onSuccess }: BetaFormProps) {
                 type="checkbox"
                 value={interest}
                 {...register('interests')}
-                className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 dark:bg-neutral-800"
               />
-              <span className="text-sm text-neutral-700">{interest}</span>
+              <span className="text-sm text-neutral-700 dark:text-neutral-300">{interest}</span>
             </label>
           ))}
         </div>
@@ -106,8 +106,8 @@ export default function BetaForm({ onSuccess }: BetaFormProps) {
         <div
           className={`p-4 rounded-xl ${
             submitStatus.type === 'success'
-              ? 'bg-green-50 text-green-800 border border-green-200'
-              : 'bg-red-50 text-red-800 border border-red-200'
+              ? 'bg-green-50 dark:bg-green-900/30 text-green-800 dark:text-green-300 border border-green-200 dark:border-green-800'
+              : 'bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800'
           }`}
         >
           {submitStatus.message}
