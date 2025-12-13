@@ -3,6 +3,55 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  
+  /* Earthy Color Palette */
+  /* Blues - Ocean/Sky tones for water adventures */
+  --blue-50: #eff6ff;
+  --blue-100: #dbeafe;
+  --blue-200: #bfdbfe;
+  --blue-300: #93c5fd;
+  --blue-400: #60a5fa;
+  --blue-500: #3b82f6;
+  --blue-600: #2563eb;
+  --blue-700: #1d4ed8;
+  --blue-800: #1e40af;
+  --blue-900: #1e3a8a;
+  
+  /* Greens - Nature/Forest tones for land adventures */
+  --green-50: #f0fdf4;
+  --green-100: #dcfce7;
+  --green-200: #bbf7d0;
+  --green-300: #86efac;
+  --green-400: #4ade80;
+  --green-500: #22c55e;
+  --green-600: #16a34a;
+  --green-700: #15803d;
+  --green-800: #166534;
+  --green-900: #14532d;
+  
+  /* Browns - Earth/Wood tones for grounding */
+  --brown-50: #fefdfb;
+  --brown-100: #fef3c7;
+  --brown-200: #fde68a;
+  --brown-300: #fcd34d;
+  --brown-400: #fbbf24;
+  --brown-500: #f59e0b;
+  --brown-600: #d97706;
+  --brown-700: #b45309;
+  --brown-800: #92400e;
+  --brown-900: #78350f;
+  
+  /* Neutrals */
+  --neutral-50: #fafafa;
+  --neutral-100: #f5f5f5;
+  --neutral-200: #e5e5e5;
+  --neutral-300: #d4d4d4;
+  --neutral-400: #a3a3a3;
+  --neutral-500: #737373;
+  --neutral-600: #525252;
+  --neutral-700: #404040;
+  --neutral-800: #262626;
+  --neutral-900: #171717;
 }
 
 :root.dark {

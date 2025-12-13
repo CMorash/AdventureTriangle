@@ -34,6 +34,18 @@ export default function EarthBackground({ className = '' }: EarthBackgroundProps
   const previousDarkModeRef = useRef<boolean | null>(null);
   const currentBlendFactorRef = useRef(isDarkMode ? 1.0 : 0.0); // Track current blend state
   const targetDarkModeRef = useRef(isDarkMode); // Track target dark mode state for animation loop
+  
+  // Track current and target values for smooth transitions
+  const currentCloudOpacityRef = useRef(isDarkMode ? 0.15 : 0.7);
+  const currentBloomThresholdRef = useRef(isDarkMode ? 0.15 : 0.35);
+  const currentBloomStrengthRef = useRef(isDarkMode ? 0.9 : 0.45);
+  const currentBloomRadiusRef = useRef(isDarkMode ? 0.6 : 0.4);
+  
+  // Store initial values for interpolation
+  const startCloudOpacityRef = useRef(isDarkMode ? 0.15 : 0.7);
+  const startBloomThresholdRef = useRef(isDarkMode ? 0.15 : 0.35);
+  const startBloomStrengthRef = useRef(isDarkMode ? 0.9 : 0.45);
+  const startBloomRadiusRef = useRef(isDarkMode ? 0.6 : 0.4);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -44,7 +56,7 @@ export default function EarthBackground({ className = '' }: EarthBackgroundProps
     sceneRef.current = scene;
 
     const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 2000);
-    camera.position.set(0, 0.6, 7.2);
+    camera.position.set(0, -4.0, 8.2);
     cameraRef.current = camera;
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
@@ -65,9 +77,13 @@ export default function EarthBackground({ className = '' }: EarthBackgroundProps
       0.1
     );
     // Adjust bloom based on dark mode - gentle bloom in light mode, more in dark mode
-    bloomPass.threshold = isDarkMode ? 0.15 : 0.35; // Higher threshold = less bloom
-    bloomPass.strength = isDarkMode ? 0.9 : 0.45; // Gentle but visible bloom in light mode
-    bloomPass.radius = isDarkMode ? 0.6 : 0.4; // Moderate radius in light mode
+    // Use targetDarkModeRef to ensure correct initial state even if theme changed before textures loaded
+    const initialBloomThreshold = targetDarkModeRef.current ? 0.15 : 0.35; // Higher threshold = less bloom
+    const initialBloomStrength = targetDarkModeRef.current ? 0.9 : 0.45; // Gentle but visible bloom in light mode
+    const initialBloomRadius = targetDarkModeRef.current ? 0.6 : 0.4; // Moderate radius in light mode
+    bloomPass.threshold = initialBloomThreshold;
+    bloomPass.strength = initialBloomStrength;
+    bloomPass.radius = initialBloomRadius;
     composer.addPass(bloomPass);
     composerRef.current = composer;
 
@@ -169,7 +185,7 @@ export default function EarthBackground({ className = '' }: EarthBackgroundProps
         dayTexture: { value: dayMap },
         nightTexture: { value: nightMap },
         blendFactor: { value: initialBlend }, // 0 = day, 1 = night
-        emissiveIntensity: { value: initialBlend * 0.1 }, // Very subtle city light glow
+        emissiveIntensity: { value: initialBlend * 0.05 }, // Very subtle city light glow
       },
       vertexShader: `
         varying vec2 vUv;
@@ -223,11 +239,13 @@ export default function EarthBackground({ className = '' }: EarthBackgroundProps
 
     // --- Cloud layer ---
     const cloudGeo = new THREE.SphereGeometry(RADIUS * 1.01, 160, 160);
+    // Use targetDarkModeRef to ensure correct initial state even if theme changed before textures loaded
+    const initialCloudOpacity = targetDarkModeRef.current ? 0.15 : 0.7;
     const cloudMat = new THREE.MeshLambertMaterial({
       map: cloudsMap,
       transparent: true,
-      opacity: isDarkMode ? 0.15 : 0.7, // Much less visible in dark mode
-      emissive: isDarkMode ? new THREE.Color(0x000000) : new THREE.Color(0x000000),
+      opacity: initialCloudOpacity, // Much less visible in dark mode
+      emissive: new THREE.Color(0x000000),
       emissiveIntensity: 0,
     });
     cloudMatRef.current = cloudMat;
@@ -236,7 +254,7 @@ export default function EarthBackground({ className = '' }: EarthBackgroundProps
     cloudsRef.current = clouds;
 
     // --- Atmosphere shader (rim glow) ---
-    const atmosphereGeo = new THREE.SphereGeometry(RADIUS * 1.06, 128, 128);
+    const atmosphereGeo = new THREE.SphereGeometry(RADIUS * 1.02, 128, 128);
     const atmosphereMat = new THREE.ShaderMaterial({
       vertexShader: `
         varying vec3 vNormal;
@@ -356,16 +374,16 @@ export default function EarthBackground({ className = '' }: EarthBackgroundProps
       if (texturesReady) {
         // idle rotation
         if (earthRef.current) {
-          earthRef.current.rotation.y += 0.0002;
+          earthRef.current.rotation.y += 0.0001;
         }
         if (cloudsRef.current) {
-          cloudsRef.current.rotation.y += 0.0003;
+          cloudsRef.current.rotation.y += 0.00015;
         }
         
         // Handle smooth texture transition
         if (isTransitioningRef.current && earthRef.current) {
           const elapsed = (Date.now() - transitionStartTimeRef.current) / 1000; // seconds
-          const duration = 2.0; // 2 seconds
+          const duration = 5.0; // 5 seconds
           
           const mat = earthRef.current.material as THREE.ShaderMaterial;
           if (mat.uniforms) {
@@ -379,17 +397,79 @@ export default function EarthBackground({ className = '' }: EarthBackgroundProps
                 ? 4 * t * t * t 
                 : 1 - Math.pow(-2 * t + 2, 3) / 2;
               
-              // Interpolate from current state to target state
+              // Interpolate earth texture blend
               const currentBlend = startBlend + (targetBlend - startBlend) * easeT;
               currentBlendFactorRef.current = currentBlend;
-              
               mat.uniforms.blendFactor.value = currentBlend;
               mat.uniforms.emissiveIntensity.value = currentBlend * 0.1; // Very subtle emissive for city lights
+              
+              // Interpolate cloud opacity: 0.7 (light) -> 0.15 (dark)
+              const targetCloudOpacity = targetDarkModeRef.current ? 0.15 : 0.7;
+              const currentCloudOpacity = startCloudOpacityRef.current + (targetCloudOpacity - startCloudOpacityRef.current) * easeT;
+              currentCloudOpacityRef.current = currentCloudOpacity;
+              if (cloudMatRef.current) {
+                cloudMatRef.current.opacity = currentCloudOpacity;
+                cloudMatRef.current.needsUpdate = true;
+              }
+              
+              // Interpolate bloom settings
+              const targetBloomThreshold = targetDarkModeRef.current ? 0.15 : 0.35;
+              const targetBloomStrength = targetDarkModeRef.current ? 0.9 : 0.45;
+              const targetBloomRadius = targetDarkModeRef.current ? 0.6 : 0.4;
+              
+              const currentBloomThreshold = startBloomThresholdRef.current + (targetBloomThreshold - startBloomThresholdRef.current) * easeT;
+              const currentBloomStrength = startBloomStrengthRef.current + (targetBloomStrength - startBloomStrengthRef.current) * easeT;
+              const currentBloomRadius = startBloomRadiusRef.current + (targetBloomRadius - startBloomRadiusRef.current) * easeT;
+              
+              currentBloomThresholdRef.current = currentBloomThreshold;
+              currentBloomStrengthRef.current = currentBloomStrength;
+              currentBloomRadiusRef.current = currentBloomRadius;
+              
+              // Update bloom pass
+              if (composerRef.current) {
+                const bloomPass = composerRef.current.passes.find(
+                  (pass: any) => pass instanceof UnrealBloomPass
+                ) as UnrealBloomPass | undefined;
+                
+                if (bloomPass) {
+                  bloomPass.threshold = currentBloomThreshold;
+                  bloomPass.strength = currentBloomStrength;
+                  bloomPass.radius = currentBloomRadius;
+                }
+              }
             } else {
               // Transition complete - set final values and stop transitioning
               currentBlendFactorRef.current = targetBlend;
               mat.uniforms.blendFactor.value = targetBlend;
               mat.uniforms.emissiveIntensity.value = targetBlend * 0.1; // Very subtle emissive for city lights
+              
+              const targetCloudOpacity = targetDarkModeRef.current ? 0.15 : 0.7;
+              currentCloudOpacityRef.current = targetCloudOpacity;
+              if (cloudMatRef.current) {
+                cloudMatRef.current.opacity = targetCloudOpacity;
+                cloudMatRef.current.needsUpdate = true;
+              }
+              
+              const targetBloomThreshold = targetDarkModeRef.current ? 0.15 : 0.35;
+              const targetBloomStrength = targetDarkModeRef.current ? 0.9 : 0.45;
+              const targetBloomRadius = targetDarkModeRef.current ? 0.6 : 0.4;
+              
+              currentBloomThresholdRef.current = targetBloomThreshold;
+              currentBloomStrengthRef.current = targetBloomStrength;
+              currentBloomRadiusRef.current = targetBloomRadius;
+              
+              if (composerRef.current) {
+                const bloomPass = composerRef.current.passes.find(
+                  (pass: any) => pass instanceof UnrealBloomPass
+                ) as UnrealBloomPass | undefined;
+                
+                if (bloomPass) {
+                  bloomPass.threshold = targetBloomThreshold;
+                  bloomPass.strength = targetBloomStrength;
+                  bloomPass.radius = targetBloomRadius;
+                }
+              }
+              
               isTransitioningRef.current = false;
             }
           }
@@ -403,6 +483,38 @@ export default function EarthBackground({ className = '' }: EarthBackgroundProps
               currentBlendFactorRef.current = targetBlend;
               mat.uniforms.blendFactor.value = targetBlend;
               mat.uniforms.emissiveIntensity.value = targetBlend * 0.1; // Very subtle emissive for city lights
+            }
+          }
+          
+          // Ensure cloud opacity matches target
+          const targetCloudOpacity = targetDarkModeRef.current ? 0.15 : 0.7;
+          if (cloudMatRef.current && Math.abs(cloudMatRef.current.opacity - targetCloudOpacity) > 0.01) {
+            currentCloudOpacityRef.current = targetCloudOpacity;
+            cloudMatRef.current.opacity = targetCloudOpacity;
+            cloudMatRef.current.needsUpdate = true;
+          }
+          
+          // Ensure bloom settings match target
+          const targetBloomThreshold = targetDarkModeRef.current ? 0.15 : 0.35;
+          const targetBloomStrength = targetDarkModeRef.current ? 0.9 : 0.45;
+          const targetBloomRadius = targetDarkModeRef.current ? 0.6 : 0.4;
+          
+          if (composerRef.current) {
+            const bloomPass = composerRef.current.passes.find(
+              (pass: any) => pass instanceof UnrealBloomPass
+            ) as UnrealBloomPass | undefined;
+            
+            if (bloomPass) {
+              if (Math.abs(bloomPass.threshold - targetBloomThreshold) > 0.01 ||
+                  Math.abs(bloomPass.strength - targetBloomStrength) > 0.01 ||
+                  Math.abs(bloomPass.radius - targetBloomRadius) > 0.01) {
+                currentBloomThresholdRef.current = targetBloomThreshold;
+                currentBloomStrengthRef.current = targetBloomStrength;
+                currentBloomRadiusRef.current = targetBloomRadius;
+                bloomPass.threshold = targetBloomThreshold;
+                bloomPass.strength = targetBloomStrength;
+                bloomPass.radius = targetBloomRadius;
+              }
             }
           }
         }
@@ -501,21 +613,67 @@ export default function EarthBackground({ className = '' }: EarthBackgroundProps
       if (mat.uniforms) {
         // Only start transition if dark mode actually changed (not on initial mount)
         if (previousDarkModeRef.current !== null && previousDarkModeRef.current !== isDarkMode) {
+          // Store current values as starting point for smooth transition
+          // Note: currentBlendFactorRef is already tracking the current state, so we don't need to store it separately
+          startCloudOpacityRef.current = currentCloudOpacityRef.current;
+          startBloomThresholdRef.current = currentBloomThresholdRef.current;
+          startBloomStrengthRef.current = currentBloomStrengthRef.current;
+          startBloomRadiusRef.current = currentBloomRadiusRef.current;
+          
           // Start transition from current blend state to target state
           isTransitioningRef.current = true;
           transitionStartTimeRef.current = Date.now();
-          // Don't update currentBlendFactorRef here - it will be updated during animation
+          // Don't update current values here - they will be updated during animation
+          // currentBlendFactorRef already has the current value, which will be used as start
         } else if (previousDarkModeRef.current === null) {
           // Initial mount - set initial state without transition
           const initialBlend = isDarkMode ? 1.0 : 0.0;
           currentBlendFactorRef.current = initialBlend;
           mat.uniforms.blendFactor.value = initialBlend;
           mat.uniforms.emissiveIntensity.value = initialBlend * 0.1; // Very subtle emissive for city lights
+          
+          // Set initial cloud opacity and bloom values
+          const initialCloudOpacity = isDarkMode ? 0.15 : 0.7;
+          const initialBloomThreshold = isDarkMode ? 0.15 : 0.35;
+          const initialBloomStrength = isDarkMode ? 0.9 : 0.45;
+          const initialBloomRadius = isDarkMode ? 0.6 : 0.4;
+          
+          currentCloudOpacityRef.current = initialCloudOpacity;
+          currentBloomThresholdRef.current = initialBloomThreshold;
+          currentBloomStrengthRef.current = initialBloomStrength;
+          currentBloomRadiusRef.current = initialBloomRadius;
+          
+          startCloudOpacityRef.current = initialCloudOpacity;
+          startBloomThresholdRef.current = initialBloomThreshold;
+          startBloomStrengthRef.current = initialBloomStrength;
+          startBloomRadiusRef.current = initialBloomRadius;
+          
+          if (cloudMatRef.current) {
+            cloudMatRef.current.opacity = initialCloudOpacity;
+            cloudMatRef.current.needsUpdate = true;
+          }
+          
+          if (composerRef.current) {
+            const bloomPass = composerRef.current.passes.find(
+              (pass: any) => pass instanceof UnrealBloomPass
+            ) as UnrealBloomPass | undefined;
+            
+            if (bloomPass) {
+              bloomPass.threshold = initialBloomThreshold;
+              bloomPass.strength = initialBloomStrength;
+              bloomPass.radius = initialBloomRadius;
+            }
+          }
         }
         previousDarkModeRef.current = isDarkMode;
       }
     } else if (previousDarkModeRef.current !== null && previousDarkModeRef.current !== isDarkMode) {
-      // Textures aren't loaded yet, but theme changed - start transition once textures are ready
+      // Textures aren't loaded yet, but theme changed - store current values and start transition once textures are ready
+      startCloudOpacityRef.current = currentCloudOpacityRef.current;
+      startBloomThresholdRef.current = currentBloomThresholdRef.current;
+      startBloomStrengthRef.current = currentBloomStrengthRef.current;
+      startBloomRadiusRef.current = currentBloomRadiusRef.current;
+      
       // The animation loop will handle the transition once textures are loaded
       isTransitioningRef.current = true;
       transitionStartTimeRef.current = Date.now();
@@ -523,25 +681,6 @@ export default function EarthBackground({ className = '' }: EarthBackgroundProps
     } else if (previousDarkModeRef.current === null) {
       // Initial mount, textures not ready yet - just set the initial state
       previousDarkModeRef.current = isDarkMode;
-    }
-    
-    // Update cloud opacity immediately (no transition needed)
-    if (cloudMatRef.current) {
-      cloudMatRef.current.opacity = isDarkMode ? 0.15 : 0.7;
-      cloudMatRef.current.needsUpdate = true;
-    }
-    
-    // Update bloom settings based on dark mode
-    if (composerRef.current) {
-      const bloomPass = composerRef.current.passes.find(
-        (pass: any) => pass instanceof UnrealBloomPass
-      ) as UnrealBloomPass | undefined;
-      
-      if (bloomPass) {
-        bloomPass.threshold = isDarkMode ? 0.15 : 0.35; // Higher threshold = less bloom
-        bloomPass.strength = isDarkMode ? 0.9 : 0.45; // Gentle but visible bloom in light mode
-        bloomPass.radius = isDarkMode ? 0.6 : 0.4; // Moderate radius in light mode
-      }
     }
   }, [isDarkMode]);
 
