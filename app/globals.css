@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Configure Tailwind to use class-based dark mode (checks for .dark class on html) */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -30,7 +33,7 @@
   --green-900: #14532d;
   
   /* Browns - Earth/Wood tones for grounding */
-  --brown-50: #fefdfb;
+  --brown-50: #FFF9F0;
   --brown-100: #fef3c7;
   --brown-200: #fde68a;
   --brown-300: #fcd34d;
@@ -84,7 +87,7 @@
   --green-900: #14532d;
   
   /* Browns - Earth/Wood tones for grounding */
-  --brown-50: #fefdfb;
+  --brown-50: #FFF9F0;
   --brown-100: #fef3c7;
   --brown-200: #fde68a;
   --brown-300: #fcd34d;

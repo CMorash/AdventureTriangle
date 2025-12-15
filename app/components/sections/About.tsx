@@ -78,7 +78,7 @@ export default function About() {
           <Card hover={true}>
             <div className="text-center">
               <div className="text-4xl font-bold text-green-600 mb-2">For Operators</div>
-              <p className="text-neutral-600">
+              <p className="text-neutral-600 dark:text-neutral-400">
                 Gain global visibility, manage bookings, and showcase certifications
               </p>
             </div>
@@ -87,7 +87,7 @@ export default function About() {
           <Card hover={true}>
             <div className="text-center">
               <div className="text-4xl font-bold text-brown-600 mb-2">For Tourism</div>
-              <p className="text-neutral-600">
+              <p className="text-neutral-600 dark:text-neutral-400">
                 Promote authentic, sustainable travel experiences
               </p>
             </div>
