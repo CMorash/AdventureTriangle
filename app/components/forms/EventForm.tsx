@@ -28,7 +28,7 @@ export default function EventForm({ onSuccess }: EventFormProps) {
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm<EventFormData>({
+  } = useForm({
     resolver: zodResolver(eventSchema),
     defaultValues: {
       attendanceType: 'in-person',
@@ -60,7 +60,7 @@ export default function EventForm({ onSuccess }: EventFormProps) {
       } else {
         setSubmitStatus({ type: 'error', message: result.error || 'Registration failed. Please try again.' });
       }
-    } catch (error) {
+    } catch {
       setSubmitStatus({ type: 'error', message: 'An error occurred. Please try again.' });
     } finally {
       setIsSubmitting(false);

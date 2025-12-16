@@ -1,4 +1,4 @@
-# 🌍 Adventure Triangle - Pre-Launch Landing Page
+# Adventure Triangle - Pre-Launch Landing Page
 
 <div align="center">
 
@@ -16,13 +16,7 @@
 
 ---
 
-## 📸 Preview
-
-> *Interactive 3D Earth globe with real-time day/night visualization, smooth scroll animations, and responsive design across all devices.*
-
----
-
-## ⚠️ License Notice
+## License Notice
 
 **This project is developed for assessment purposes for Adventure Triangle's internship program.** 
 
@@ -30,26 +24,26 @@ Licensed under [CC BY-NC 4.0](LICENSE) - Commercial use, reproduction, or deploy
 
 ---
 
-## ✨ Features
+## Features
 
 ### Frontend
-- 🌐 **Interactive 3D Earth** - WebGL-powered globe with realistic day/night cycle using Three.js
-- 🎨 **Modern UI/UX** - Clean, adventure-driven design with earthy color palette
-- 📱 **Fully Responsive** - Optimized for mobile, tablet, and desktop
-- 🌙 **Dark Mode** - Automatic theme detection with manual toggle
-- 🎭 **Smooth Animations** - Page transitions and scroll animations via Framer Motion
-- ✅ **Form Validation** - Client-side validation with react-hook-form and Zod
+- **Interactive 3D Earth** - WebGL-powered globe with realistic day/night cycle using Three.js
+- **Modern UI/UX** - Clean, adventure-driven design with earthy color palette
+- **Fully Responsive** - Optimized for mobile, tablet, and desktop
+- **Dark Mode** - Automatic theme detection with manual toggle
+- **Smooth Animations** - Page transitions and scroll animations via Framer Motion
+- **Form Validation** - Client-side validation with react-hook-form and Zod
 
 ### Backend API
-- 📝 **User Registration** - Beta signup with interests tracking
-- 🤝 **Partner Onboarding** - Full application workflow for adventure providers
-- 📅 **Event Registration** - Launch event signup (in-person/virtual)
-- 📊 **Logging System** - Application-wide logging with metadata support
-- 💾 **Persistent Storage** - JSON file-based storage (demo purposes)
+- **User Registration** - Beta signup with interests tracking
+- **Partner Onboarding** - Full application workflow for adventure providers
+- **Event Registration** - Launch event signup (in-person/virtual)
+- **Logging System** - Application-wide logging with metadata support
+- **Persistent Storage** - JSON file-based storage (demo purposes)
 
 ---
 
-## 🏗️ Tech Stack
+## Tech Stack
 
 | Layer | Technology | Purpose |
 |-------|------------|---------|
@@ -63,7 +57,7 @@ Licensed under [CC BY-NC 4.0](LICENSE) - Commercial use, reproduction, or deploy
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 ```
 adventure-triangle/
@@ -102,7 +96,7 @@ adventure-triangle/
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -134,7 +128,7 @@ npm start
 
 ---
 
-## 📡 API Reference
+## API Reference
 
 Complete API documentation is available in [`docs/API.md`](./docs/API.md).
 
@@ -179,53 +173,16 @@ Import the included [Postman Collection](./Adventure_Triangle_API.postman_collec
 
 ---
 
-## 🎨 Design System
-
-### Color Palette
-
-| Category | Usage | Colors |
-|----------|-------|--------|
-| **Blues** | Water adventures, CTAs | `blue-50` → `blue-900` |
-| **Greens** | Air/nature elements | `green-50` → `green-900` |
-| **Browns** | Earth/land elements | `brown-50` → `brown-900` |
-| **Neutrals** | Backgrounds, text | `neutral-50` → `neutral-900` |
-
-### Typography
-
-- **Font**: Geist Sans (Next.js optimized)
-- **Headings**: Bold, `text-4xl` to `text-7xl`
-- **Body**: Regular, `text-base` to `text-xl`
-
-### Component Styling
-
-- **Border Radius**: `rounded-xl` (12px) to `rounded-2xl` (24px)
-- **Shadows**: `shadow-lg`, `shadow-xl` for depth
-- **Transitions**: 300ms ease for smooth interactions
-
----
-
-## 🌐 Deployment
-
-### Vercel (Recommended)
-
-1. Push your code to GitHub
-2. Import the project at [vercel.com/new](https://vercel.com/new)
-3. Deploy automatically (zero configuration needed)
+## Deployment
 
 The project is pre-configured for Vercel deployment with:
 - Automatic API route handling
 - Edge function support
 - Optimal caching strategies
 
-### Environment Variables
+## Assignment Checklist
 
-No environment variables are required for basic functionality. All data is stored locally in JSON files.
-
----
-
-## 📋 Assignment Checklist
-
-### Frontend Developer Requirements ✅
+### Frontend Developer Requirements
 
 - [x] Next.js 14+ (App Router)
 - [x] TailwindCSS
@@ -235,7 +192,7 @@ No environment variables are required for basic functionality. All data is store
 - [x] README documentation
 - [x] GitHub repository
 
-### Backend/API Engineer Requirements ✅
+### Backend/API Engineer Requirements
 
 - [x] User registration endpoint
 - [x] Partner onboarding endpoint
@@ -247,7 +204,7 @@ No environment variables are required for basic functionality. All data is store
 
 ---
 
-## 📁 Data Storage
+## Data Storage
 
 For this demo, all data is stored in JSON files in the `data/` directory:
 
@@ -262,7 +219,7 @@ For this demo, all data is stored in JSON files in the `data/` directory:
 
 ---
 
-## 🧪 Development
+## Development
 
 ### Code Quality
 
@@ -274,15 +231,7 @@ npm run lint
 npx tsc --noEmit
 ```
 
-### File Conventions
-
-- **Components**: PascalCase (`Hero.tsx`, `BetaForm.tsx`)
-- **Utilities**: camelCase (`storage.ts`)
-- **API Routes**: lowercase directories (`route.ts`)
-
----
-
-## 🤝 About Adventure Triangle
+## About Adventure Triangle
 
 Adventure Triangle is building a global adventure ecosystem connecting travelers with verified experiences across:
 
@@ -290,18 +239,11 @@ Adventure Triangle is building a global adventure ecosystem connecting travelers
 - ✈️ **Air** - Skydiving, paragliding, hot air balloons
 - 🏔️ **Land** - Hiking, climbing, safari, camping
 
-**Launching January 26, 2026 • Toronto, Canada**
+**Launching January 26, 2026**
 
 ---
 
-## 📬 Contact
-
-- **Email**: support@adventuretriangle.com
-- **Location**: Toronto, Canada
-
----
-
-## 📄 License
+## License
 
 This project is licensed under the [Creative Commons Attribution-NonCommercial 4.0 International License (CC BY-NC 4.0)](LICENSE).
 

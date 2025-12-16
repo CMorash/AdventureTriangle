@@ -3,11 +3,8 @@
 import { motion } from 'framer-motion';
 import Button from '@/app/components/ui/Button';
 import EarthBackground from '@/app/components/ui/EarthBackground';
-import { useTheme } from '@/app/contexts/ThemeContext';
 
 export default function Hero() {
-  const { isDarkMode } = useTheme();
-  
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
     if (element) {

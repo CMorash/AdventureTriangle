@@ -28,7 +28,6 @@ export default function EarthBackground({ className = '' }: EarthBackgroundProps
   const dayMapRef = useRef<THREE.Texture | null>(null);
   const nightMapRef = useRef<THREE.Texture | null>(null);
   const cloudMatRef = useRef<THREE.MeshLambertMaterial | null>(null);
-  const transitionProgressRef = useRef(0);
   const transitionStartTimeRef = useRef(0);
   const isTransitioningRef = useRef(false);
   const previousDarkModeRef = useRef<boolean | null>(null);
@@ -137,8 +136,6 @@ export default function EarthBackground({ className = '' }: EarthBackgroundProps
     
     // Skip .tif files - browsers don't support them
     // Create placeholder textures for normal and specular maps
-    const normalMap = null; // Will be skipped in material
-    const specMap = null; // Will be skipped in material
     // Count these as "loaded" immediately since we're skipping them
     onTextureLoad();
     onTextureLoad();
@@ -330,7 +327,6 @@ export default function EarthBackground({ className = '' }: EarthBackgroundProps
       
       const partnerFormTop = partnerFormSection.offsetTop;
       const scrollY = window.scrollY;
-      const windowHeight = window.innerHeight;
       
       // Calculate progress from 0 (top) to 1 (partner form section)
       // Progress is 1 when we reach the partner form section
@@ -368,7 +364,7 @@ export default function EarthBackground({ className = '' }: EarthBackgroundProps
     
     const animate = () => {
       animationFrameRef.current = requestAnimationFrame(animate);
-      const dt = clock.getDelta();
+      clock.getDelta();
 
       // Only animate Earth/clouds if textures are ready
       if (texturesReady) {
@@ -428,7 +424,7 @@ export default function EarthBackground({ className = '' }: EarthBackgroundProps
               // Update bloom pass
               if (composerRef.current) {
                 const bloomPass = composerRef.current.passes.find(
-                  (pass: any) => pass instanceof UnrealBloomPass
+                  (pass: unknown) => pass instanceof UnrealBloomPass
                 ) as UnrealBloomPass | undefined;
                 
                 if (bloomPass) {
@@ -460,7 +456,7 @@ export default function EarthBackground({ className = '' }: EarthBackgroundProps
               
               if (composerRef.current) {
                 const bloomPass = composerRef.current.passes.find(
-                  (pass: any) => pass instanceof UnrealBloomPass
+                  (pass: unknown) => pass instanceof UnrealBloomPass
                 ) as UnrealBloomPass | undefined;
                 
                 if (bloomPass) {

@@ -26,7 +26,7 @@ export default function Campaign() {
             transition={{ duration: 0.6 }}
           >
             <h2 className="text-5xl sm:text-6xl font-bold text-neutral-900 dark:text-white mb-6">
-              #FeelTheAdventure
+              Feel The Adventure
             </h2>
             <p className="text-2xl text-neutral-700 dark:text-neutral-300 mb-8 max-w-3xl mx-auto leading-relaxed">
               Share your adventure stories and join a community of explorers discovering the world one experience at a time.
@@ -47,7 +47,7 @@ export default function Campaign() {
               Tag us in your adventure posts and use #FeelTheAdventure to be featured in our community gallery.
             </p>
             <p className="text-neutral-600 dark:text-neutral-400">
-              Whether it's skydiving over mountains, diving in crystal-clear waters, or hiking through ancient forests - your adventure inspires others.
+              Whether it&apos;s skydiving over mountains, diving in crystal-clear waters, or hiking through ancient forests - your adventure inspires others.
             </p>
           </motion.div>
 

@@ -15,6 +15,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     setMounted(true);
+  }, []);
+
+  useEffect(() => {
     // Check localStorage for saved preference
     const savedTheme = localStorage.getItem('darkMode');
     if (savedTheme !== null) {

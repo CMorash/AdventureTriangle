@@ -38,7 +38,7 @@ export default function About() {
               Adventure Triangle is building a global adventure ecosystem that empowers travelers to discover and book verified, transformative experiences across water, air, and land adventures.
             </p>
             <p className="text-neutral-700 dark:text-neutral-300 leading-relaxed">
-              We're creating an emotion-first discovery platform that connects adventurers with trusted local providers through a seamless, mobile-friendly booking experience.
+              We&apos;re creating an emotion-first discovery platform that connects adventurers with trusted local providers through a seamless, mobile-friendly booking experience.
             </p>
           </Card>
 

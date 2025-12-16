@@ -54,7 +54,7 @@ export default function BetaForm({ onSuccess }: BetaFormProps) {
       } else {
         setSubmitStatus({ type: 'error', message: result.error || 'Registration failed. Please try again.' });
       }
-    } catch (error) {
+    } catch {
       setSubmitStatus({ type: 'error', message: 'An error occurred. Please try again.' });
     } finally {
       setIsSubmitting(false);

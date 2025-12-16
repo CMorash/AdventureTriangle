@@ -4,7 +4,7 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: #ffffff;
+  --background: #222222;
   --foreground: #171717;
   
   /* Earthy Color Palette */

@@ -31,7 +31,7 @@ export default function PartnerCTA() {
             Partner With Us
           </h2>
           <p className="text-xl text-neutral-700 dark:text-neutral-300 mb-8 max-w-2xl mx-auto leading-relaxed">
-            Are you an adventure operator looking to expand your reach? Join Adventure Triangle's global marketplace and connect with travelers worldwide.
+            Are you an adventure operator looking to expand your reach? Join Adventure Triangle&apos;s global marketplace and connect with travelers worldwide.
           </p>
 
           <div className="grid sm:grid-cols-3 gap-6 mb-10">

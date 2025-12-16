@@ -33,10 +33,10 @@ export default function PartnerForm({ onSuccess }: PartnerFormProps) {
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm<PartnerFormData>({
+  } = useForm({
     resolver: zodResolver(partnerSchema),
     defaultValues: {
-      adventureType: 'multiple',
+      adventureType: 'multiple' as const,
     },
   });
 
@@ -71,7 +71,7 @@ export default function PartnerForm({ onSuccess }: PartnerFormProps) {
       } else {
         setSubmitStatus({ type: 'error', message: result.error || 'Submission failed. Please try again.' });
       }
-    } catch (error) {
+    } catch {
       setSubmitStatus({ type: 'error', message: 'An error occurred. Please try again.' });
     } finally {
       setIsSubmitting(false);

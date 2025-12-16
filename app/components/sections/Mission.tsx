@@ -105,7 +105,7 @@ export default function Mission() {
           className="mt-16 text-center"
         >
           <p className="text-lg text-neutral-700 dark:text-neutral-300 max-w-2xl mx-auto">
-            We're building the future of adventure - trusted, transformative, and truly global. 
+            We&apos;re building the future of adventure - trusted, transformative, and truly global. 
             Join us on an adventure of a lifetime and discover the world in a way you never thought possible.
           </p>
         </motion.div>
