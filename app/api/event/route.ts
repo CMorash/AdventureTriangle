@@ -1,7 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { saveEventRegistration, saveLog } from '@/lib/data/storage';
+import { saveEventRegistration, saveLog, getEventRegistrations } from '@/lib/data/storage';
 import type { EventRegistration, LogEntry } from '@/lib/types';
 
+/**
+ * GET /api/event
+ * 
+ * Retrieve all event registrations.
+ * In production, this would require authentication.
+ */
+export async function GET() {
+  try {
+    const events = await getEventRegistrations();
+    
+    return NextResponse.json(
+      { 
+        events,
+        count: events.length,
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error('Get event registrations error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * POST /api/event
+ * 
+ * Register for the Adventure Triangle launch event.
+ */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();

@@ -1,7 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { saveRegistration, saveLog } from '@/lib/data/storage';
+import { saveRegistration, saveLog, getRegistrations } from '@/lib/data/storage';
 import type { BetaRegistration, LogEntry } from '@/lib/types';
 
+/**
+ * GET /api/register
+ * 
+ * Retrieve all beta user registrations.
+ * In production, this would require authentication.
+ */
+export async function GET() {
+  try {
+    const registrations = await getRegistrations();
+    
+    return NextResponse.json(
+      { 
+        registrations,
+        count: registrations.length,
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error('Get registrations error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * POST /api/register
+ * 
+ * Register a new beta user for Adventure Triangle.
+ */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();

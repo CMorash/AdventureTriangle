@@ -1,7 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { savePartner, saveLog } from '@/lib/data/storage';
+import { savePartner, saveLog, getPartners } from '@/lib/data/storage';
 import type { PartnerOnboarding, LogEntry } from '@/lib/types';
 
+/**
+ * GET /api/partner
+ * 
+ * Retrieve all partner applications.
+ * In production, this would require authentication.
+ */
+export async function GET() {
+  try {
+    const partners = await getPartners();
+    
+    return NextResponse.json(
+      { 
+        partners,
+        count: partners.length,
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error('Get partners error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * POST /api/partner
+ * 
+ * Submit a new partner onboarding application.
+ */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();

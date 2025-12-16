@@ -1,0 +1,924 @@
+{
+	"info": {
+		"_postman_id": "adventure-triangle-api-v1",
+		"name": "Adventure Triangle API",
+		"description": "API collection for Adventure Triangle Pre-Launch Landing Page.\n\nThis collection contains all API endpoints for:\n- Beta User Registration\n- Partner Onboarding\n- Event Registration\n- Application Logging\n\n**Getting Started:**\n1. Set the `baseUrl` variable to your deployment URL\n2. For local development, use `http://localhost:3000`\n3. For production, use your Vercel deployment URL",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "General",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/health",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"health"
+							]
+						},
+						"description": "Check API availability and version information."
+					},
+					"response": []
+				}
+			],
+			"description": "General system endpoints."
+		},
+		{
+			"name": "Beta Registration",
+			"item": [
+				{
+					"name": "Get All Registrations",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"register"
+							]
+						},
+						"description": "Retrieve all beta user registrations."
+					},
+					"response": []
+				},
+				{
+					"name": "Register Beta User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"John Doe\",\n    \"email\": \"john.doe@example.com\",\n    \"interests\": [\"Water Activities\", \"Land Activities\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"register"
+							]
+						},
+						"description": "Register a new beta user for early access to Adventure Triangle.\n\n**Required Fields:**\n- `name` (string): User's full name\n- `email` (string): Valid email address\n\n**Optional Fields:**\n- `interests` (array): Adventure interests\n  - \"Water Activities\"\n  - \"Air Activities\"\n  - \"Land Activities\"\n  - \"All Adventures\""
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"John Doe\",\n    \"email\": \"john.doe@example.com\",\n    \"interests\": [\"Water Activities\", \"Land Activities\"]\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/register",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"register"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Registration successful\",\n    \"id\": \"550e8400-e29b-41d4-a716-446655440000\"\n}"
+						},
+						{
+							"name": "Validation Error - Missing Fields",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"John Doe\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/register",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"register"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n    \"error\": \"Name and email are required\"\n}"
+						},
+						{
+							"name": "Validation Error - Invalid Email",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"John Doe\",\n    \"email\": \"invalid-email\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/register",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"register"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n    \"error\": \"Invalid email format\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Register Beta User (Minimal)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Jane Smith\",\n    \"email\": \"jane.smith@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"register"
+							]
+						},
+						"description": "Register a beta user with only required fields (no interests specified)."
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints for beta user registration."
+		},
+		{
+			"name": "Partner Onboarding",
+			"item": [
+				{
+					"name": "Get All Partners",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/partner",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"partner"
+							]
+						},
+						"description": "Retrieve all partner onboarding applications."
+					},
+					"response": []
+				},
+				{
+					"name": "Submit Partner Application (Full)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"companyName\": \"Ocean Adventures Inc.\",\n    \"contactName\": \"Jane Smith\",\n    \"email\": \"jane@oceanadventures.com\",\n    \"phone\": \"+1 (555) 123-4567\",\n    \"adventureType\": \"water\",\n    \"location\": \"Miami, Florida, USA\",\n    \"website\": \"https://www.oceanadventures.com\",\n    \"message\": \"We specialize in scuba diving and snorkeling tours in the Caribbean. Looking forward to partnering with Adventure Triangle!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/partner",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"partner"
+							]
+						},
+						"description": "Submit a complete partner onboarding application with all fields.\n\n**Required Fields:**\n- `companyName` (string): Company/business name\n- `contactName` (string): Primary contact person\n- `email` (string): Business email\n\n**Optional Fields:**\n- `phone` (string): Contact phone\n- `adventureType` (enum): water, air, land, multiple\n- `location` (string): Business location\n- `website` (string): Company URL\n- `message` (string): Additional info"
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"companyName\": \"Ocean Adventures Inc.\",\n    \"contactName\": \"Jane Smith\",\n    \"email\": \"jane@oceanadventures.com\",\n    \"phone\": \"+1 (555) 123-4567\",\n    \"adventureType\": \"water\",\n    \"location\": \"Miami, Florida, USA\",\n    \"website\": \"https://www.oceanadventures.com\",\n    \"message\": \"We specialize in scuba diving tours.\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/partner",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"partner"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Partner onboarding successful\",\n    \"id\": \"550e8400-e29b-41d4-a716-446655440001\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Submit Partner Application (Minimal)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"companyName\": \"Sky High Tours\",\n    \"contactName\": \"Mike Wilson\",\n    \"email\": \"mike@skyhightours.com\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/partner",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"partner"
+							]
+						},
+						"description": "Submit a partner application with only required fields."
+					},
+					"response": []
+				},
+				{
+					"name": "Submit Partner Application (Air Activities)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"companyName\": \"Skydive Toronto\",\n    \"contactName\": \"Alex Johnson\",\n    \"email\": \"alex@skydivetoronto.ca\",\n    \"phone\": \"+1 (416) 555-0199\",\n    \"adventureType\": \"air\",\n    \"location\": \"Toronto, Ontario, Canada\",\n    \"website\": \"https://www.skydivetoronto.ca\",\n    \"message\": \"Premier skydiving experience in the Greater Toronto Area.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/partner",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"partner"
+							]
+						},
+						"description": "Submit a partner application for air-based adventure activities."
+					},
+					"response": []
+				},
+				{
+					"name": "Submit Partner Application (Land Activities)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"companyName\": \"Mountain Trek Expeditions\",\n    \"contactName\": \"Sarah Chen\",\n    \"email\": \"sarah@mountaintrek.com\",\n    \"phone\": \"+1 (604) 555-0123\",\n    \"adventureType\": \"land\",\n    \"location\": \"Vancouver, British Columbia, Canada\",\n    \"website\": \"https://www.mountaintrek.com\",\n    \"message\": \"Guided hiking and rock climbing adventures in the Canadian Rockies.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/partner",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"partner"
+							]
+						},
+						"description": "Submit a partner application for land-based adventure activities."
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints for adventure partner onboarding applications."
+		},
+		{
+			"name": "Event Registration",
+			"item": [
+				{
+					"name": "Get All Events",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/event",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"event"
+							]
+						},
+						"description": "Retrieve all launch event registrations."
+					},
+					"response": []
+				},
+				{
+					"name": "Register for Event (In-Person)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"David Brown\",\n    \"email\": \"david.brown@example.com\",\n    \"attendanceType\": \"in-person\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/event",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"event"
+							]
+						},
+						"description": "Register for the Adventure Triangle launch event (January 26, 2026 - Toronto, Canada) as an in-person attendee.\n\n**Required Fields:**\n- `name` (string): Attendee's full name\n- `email` (string): Contact email\n\n**Optional Fields:**\n- `attendanceType` (enum): in-person, virtual, both"
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"David Brown\",\n    \"email\": \"david.brown@example.com\",\n    \"attendanceType\": \"in-person\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/event",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"event"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Event registration successful\",\n    \"id\": \"550e8400-e29b-41d4-a716-446655440002\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Register for Event (Virtual)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Emma Wilson\",\n    \"email\": \"emma.wilson@example.com\",\n    \"attendanceType\": \"virtual\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/event",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"event"
+							]
+						},
+						"description": "Register for the launch event as a virtual attendee (remote stream access)."
+					},
+					"response": []
+				},
+				{
+					"name": "Register for Event (Both)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Chris Taylor\",\n    \"email\": \"chris.taylor@example.com\",\n    \"attendanceType\": \"both\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/event",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"event"
+							]
+						},
+						"description": "Register for the launch event with both in-person and virtual access."
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints for launch event registration."
+		},
+		{
+			"name": "Logging",
+			"item": [
+				{
+					"name": "Create Log Entry (Info)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"level\": \"info\",\n    \"message\": \"User completed registration flow\",\n    \"metadata\": {\n        \"userAgent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64)\",\n        \"referrer\": \"https://google.com\",\n        \"sessionId\": \"abc123\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/logs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"logs"
+							]
+						},
+						"description": "Create an informational log entry.\n\n**Required Fields:**\n- `message` (string): Log message\n\n**Optional Fields:**\n- `level` (enum): info, warn, error (default: info)\n- `metadata` (object): Additional contextual data"
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"level\": \"info\",\n    \"message\": \"User completed registration flow\",\n    \"metadata\": {\n        \"userAgent\": \"Mozilla/5.0\"\n    }\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/logs",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"logs"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Log saved successfully\",\n    \"id\": \"550e8400-e29b-41d4-a716-446655440003\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Create Log Entry (Warning)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"level\": \"warn\",\n    \"message\": \"Rate limit approaching for IP address\",\n    \"metadata\": {\n        \"ipAddress\": \"192.168.1.100\",\n        \"requestCount\": 95,\n        \"limit\": 100\n    }\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/logs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"logs"
+							]
+						},
+						"description": "Create a warning-level log entry."
+					},
+					"response": []
+				},
+				{
+					"name": "Create Log Entry (Error)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"level\": \"error\",\n    \"message\": \"Database connection failed\",\n    \"metadata\": {\n        \"errorCode\": \"ECONNREFUSED\",\n        \"host\": \"localhost\",\n        \"port\": 5432,\n        \"stack\": \"Error: connect ECONNREFUSED...\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/logs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"logs"
+							]
+						},
+						"description": "Create an error-level log entry."
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Logs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/logs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"logs"
+							]
+						},
+						"description": "Retrieve all application logs (most recent 1000 entries)."
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/logs",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"logs"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n    \"logs\": [\n        {\n            \"id\": \"550e8400-e29b-41d4-a716-446655440003\",\n            \"level\": \"info\",\n            \"message\": \"Beta user registered: john@example.com\",\n            \"timestamp\": \"2025-12-15T10:30:00.000Z\",\n            \"metadata\": {\n                \"registrationId\": \"550e8400-e29b-41d4-a716-446655440000\"\n            }\n        },\n        {\n            \"id\": \"550e8400-e29b-41d4-a716-446655440004\",\n            \"level\": \"info\",\n            \"message\": \"Partner onboarded: Ocean Adventures Inc.\",\n            \"timestamp\": \"2025-12-15T10:35:00.000Z\",\n            \"metadata\": {\n                \"partnerId\": \"550e8400-e29b-41d4-a716-446655440001\"\n            }\n        }\n    ]\n}"
+						}
+					]
+				}
+			],
+			"description": "Endpoints for application logging and monitoring."
+		},
+		{
+			"name": "Test Scenarios",
+			"item": [
+				{
+					"name": "Complete User Journey",
+					"item": [
+						{
+							"name": "1. Register Beta User",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Test User\",\n    \"email\": \"testuser@adventure.com\",\n    \"interests\": [\"Water Activities\", \"Air Activities\", \"Land Activities\"]\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/register",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"register"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "2. Register for Event",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Test User\",\n    \"email\": \"testuser@adventure.com\",\n    \"attendanceType\": \"both\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/event",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"event"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "3. Verify Logs",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/logs",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"logs"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"description": "Complete user journey test: register as beta user, then register for the launch event."
+				},
+				{
+					"name": "Validation Tests",
+					"item": [
+						{
+							"name": "Missing Email (Should Fail)",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Test User\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/register",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"register"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Invalid Email Format (Should Fail)",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Test User\",\n    \"email\": \"not-an-email\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/register",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"register"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Invalid Adventure Type (Should Fail)",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"companyName\": \"Test Co\",\n    \"contactName\": \"Test\",\n    \"email\": \"test@test.com\",\n    \"adventureType\": \"space\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/partner",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"partner"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Invalid Attendance Type (Should Fail)",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Test User\",\n    \"email\": \"test@test.com\",\n    \"attendanceType\": \"maybe\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/event",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"event"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"description": "Test validation error handling for various invalid inputs."
+				}
+			],
+			"description": "Pre-configured test scenarios for API validation."
+		}
+	]
+}
