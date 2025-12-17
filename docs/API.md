@@ -1,7 +1,7 @@
 # Adventure Triangle API Documentation
 
 > **Version**: 1.0.0  
-> **Base URL**: `https://your-domain.vercel.app/api` (or `http://localhost:3000/api` for development)
+> **Base URL**: `https://adventure-triangle-theta.vercel.app/api` (or `http://localhost:3000/api` for development)
 
 ## Overview
 

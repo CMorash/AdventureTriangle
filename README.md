@@ -10,7 +10,7 @@
 
 **A stunning pre-launch landing page for Adventure Triangle - the global marketplace connecting travelers with verified adventure experiences.**
 
-[Live Demo](https://your-vercel-url.vercel.app) • [API Documentation](./docs/API.md) • [Postman Collection](./Adventure_Triangle_API.postman_collection.json)
+[Live Demo](https://adventure-triangle-theta.vercel.app/) • [API Documentation](./docs/API.md) • [Postman Collection](./Adventure_Triangle_API.postman_collection.json)
 
 </div>
 

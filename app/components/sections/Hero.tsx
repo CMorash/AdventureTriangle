@@ -75,7 +75,7 @@ export default function Hero() {
             transition={{ duration: 0.8, delay: 0.8 }}
             className="mt-8 text-sm text-neutral-300 dark:text-neutral-300"
           >
-            Launching January 26, 2026 • Toronto, Canada
+            Launching January 26, 2026
           </motion.p>
         </motion.div>
       </div>
