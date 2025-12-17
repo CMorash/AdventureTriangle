@@ -7,6 +7,7 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { useTheme } from '@/app/contexts/ThemeContext';
+import { useEarthMode } from '@/app/contexts/EarthModeContext';
 
 interface EarthBackgroundProps {
   className?: string;
@@ -14,6 +15,7 @@ interface EarthBackgroundProps {
 
 export default function EarthBackground({ className = '' }: EarthBackgroundProps) {
   const { isDarkMode } = useTheme();
+  const { isEarthMode } = useEarthMode();
   const containerRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
@@ -23,8 +25,17 @@ export default function EarthBackground({ className = '' }: EarthBackgroundProps
   const cloudsRef = useRef<THREE.Mesh | null>(null);
   const sunLightRef = useRef<THREE.DirectionalLight | null>(null);
   const animationFrameRef = useRef<number | undefined>(undefined);
+  const controlsRef = useRef<OrbitControls | null>(null);
   const targetZRef = useRef(7.2);
   const targetSunYRef = useRef(3.0);
+  // Camera positions for each mode
+  const textModeCameraPositionRef = useRef({ x: 0, y: -4.2, z: 7.2 });
+  const earthModeCameraPositionRef = useRef({ x: 0, y: 0, z: 7.2 });
+  // Track camera transition state
+  const isCameraTransitioningRef = useRef(false);
+  const cameraTransitionTargetRef = useRef({ x: 0, y: -4.2, z: 7.2 });
+  const previousEarthModeRef = useRef<boolean | null>(null);
+  const isEarthModeRef = useRef(false); // For use in scroll handler
   const dayMapRef = useRef<THREE.Texture | null>(null);
   const nightMapRef = useRef<THREE.Texture | null>(null);
   const cloudMatRef = useRef<THREE.MeshLambertMaterial | null>(null);
@@ -55,7 +66,8 @@ export default function EarthBackground({ className = '' }: EarthBackgroundProps
     sceneRef.current = scene;
 
     const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 2000);
-    camera.position.set(0, -4.0, 8.2);
+    // Initial position for text mode (slightly above center, looking at Earth)
+    camera.position.set(0, -4.2, 7.2);
     cameraRef.current = camera;
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
@@ -308,12 +320,33 @@ export default function EarthBackground({ className = '' }: EarthBackgroundProps
     const fill = new THREE.AmbientLight(0xffffff, 0.18);
     scene.add(fill);
 
-    // --- controls for small interactivity (disabled zoom/pan) ---
+    // --- controls for "Google Earth" style interaction ---
     const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableZoom = false;
+    
+    // Set target to center of Earth - camera will always orbit around this point
+    controls.target.set(0, 0, 0);
+    
+    // Enable zoom with scroll wheel / pinch only
+    controls.enableZoom = true;
+    controls.minDistance = 4;   // Closest zoom (can't go inside the Earth)
+    controls.maxDistance = 20;  // Furthest zoom
+    controls.zoomSpeed = 0.8;   // Zoom speed
+    
+    // Disable panning - Earth stays centered
     controls.enablePan = false;
-    controls.minPolarAngle = 0.2;
-    controls.maxPolarAngle = Math.PI - 0.2;
+    
+    // Enable full 360° rotation (no polar angle limits)
+    controls.enableRotate = true;
+    controls.rotateSpeed = 0.8; // Rotation speed
+    // No minPolarAngle/maxPolarAngle = full rotation freedom
+    
+    // Enable damping for smooth, natural feel (reduces momentum)
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08; // Smooth stopping
+    
+    // Disabled by default (text mode)
+    controls.enabled = false;
+    controlsRef.current = controls;
 
     // --- scroll handler ---
     const getScrollProgress = () => {
@@ -335,12 +368,15 @@ export default function EarthBackground({ className = '' }: EarthBackgroundProps
     };
 
     const handleScroll = () => {
+      // Don't modify camera during earth mode - user has full control
+      if (isEarthModeRef.current) return;
+      
       const p = getScrollProgress();
-      // camera zoom from 7.2 -> 3.6
+      // camera zoom from 7.2 -> 3.6 (original behavior)
       targetZRef.current = THREE.MathUtils.lerp(7.2, 3.6, p);
       // sun moves to crest over top then slightly forward
       targetSunYRef.current = THREE.MathUtils.lerp(3.0, 5.2, p);
-      // tilt camera down slightly as we approach
+      // tilt camera down slightly as we approach (original behavior: 0.6 -> 0.2)
       camera.position.y = THREE.MathUtils.lerp(0.6, 0.2, p);
       
       // Hide Earth background when we reach partner form section
@@ -518,11 +554,60 @@ export default function EarthBackground({ className = '' }: EarthBackgroundProps
 
       // smooth camera interpolation
       if (cameraRef.current) {
-        cameraRef.current.position.z = THREE.MathUtils.lerp(
-          cameraRef.current.position.z,
-          targetZRef.current,
-          0.06
-        );
+        // Handle smooth camera transitions between modes
+        if (isCameraTransitioningRef.current) {
+          const target = cameraTransitionTargetRef.current;
+          const lerpFactor = 0.04; // Smooth transition speed
+          
+          cameraRef.current.position.x = THREE.MathUtils.lerp(
+            cameraRef.current.position.x,
+            target.x,
+            lerpFactor
+          );
+          cameraRef.current.position.y = THREE.MathUtils.lerp(
+            cameraRef.current.position.y,
+            target.y,
+            lerpFactor
+          );
+          cameraRef.current.position.z = THREE.MathUtils.lerp(
+            cameraRef.current.position.z,
+            target.z,
+            lerpFactor
+          );
+          
+          // When transitioning to text mode, keep camera looking at Earth center
+          // This fixes the issue where camera rotation was off after orbiting
+          if (!isEarthModeRef.current) {
+            cameraRef.current.lookAt(0, 0, 0);
+          }
+          
+          // Check if camera is close enough to target position
+          const dx = Math.abs(cameraRef.current.position.x - target.x);
+          const dy = Math.abs(cameraRef.current.position.y - target.y);
+          const dz = Math.abs(cameraRef.current.position.z - target.z);
+          if (dx < 0.01 && dy < 0.01 && dz < 0.01) {
+            cameraRef.current.position.set(target.x, target.y, target.z);
+            isCameraTransitioningRef.current = false;
+            
+            // When in text mode, ensure camera looks at Earth center
+            if (!isEarthModeRef.current) {
+              cameraRef.current.lookAt(0, 0, 0);
+            }
+            
+            // Only update OrbitControls when in earth mode
+            if (controlsRef.current && isEarthModeRef.current) {
+              controlsRef.current.target.set(0, 0, 0);
+              controlsRef.current.update();
+            }
+          }
+        } else if (!isEarthModeRef.current) {
+          // In text mode (not transitioning), apply scroll-based z interpolation
+          cameraRef.current.position.z = THREE.MathUtils.lerp(
+            cameraRef.current.position.z,
+            targetZRef.current,
+            0.06
+          );
+        }
       }
 
       // smooth sun movement
@@ -539,6 +624,12 @@ export default function EarthBackground({ className = '' }: EarthBackgroundProps
       // subtle parallax: tilt atmosphere towards camera
       if (cameraRef.current && texturesReady) {
         atmosphere.lookAt(cameraRef.current.position);
+      }
+
+      // Update OrbitControls (required for damping to work)
+      // Only update when controls are enabled to prevent interference during camera reset
+      if (controlsRef.current && controlsRef.current.enabled) {
+        controlsRef.current.update();
       }
 
       // render with bloom composer for cinematic glow
@@ -679,6 +770,31 @@ export default function EarthBackground({ className = '' }: EarthBackgroundProps
       previousDarkModeRef.current = isDarkMode;
     }
   }, [isDarkMode]);
+
+  // Handle earth mode changes - enable/disable controls and transition camera
+  useEffect(() => {
+    // Update ref for use in scroll handler and animation loop
+    isEarthModeRef.current = isEarthMode;
+    
+    if (controlsRef.current) {
+      controlsRef.current.enabled = isEarthMode;
+    }
+    
+    // Handle camera transitions between modes
+    if (previousEarthModeRef.current !== null && previousEarthModeRef.current !== isEarthMode) {
+      if (isEarthMode) {
+        // Switching TO earth mode - move camera to centered position
+        cameraTransitionTargetRef.current = { ...earthModeCameraPositionRef.current };
+        isCameraTransitioningRef.current = true;
+      } else {
+        // Switching FROM earth mode - move camera back to text mode position
+        cameraTransitionTargetRef.current = { ...textModeCameraPositionRef.current };
+        isCameraTransitioningRef.current = true;
+      }
+    }
+    
+    previousEarthModeRef.current = isEarthMode;
+  }, [isEarthMode]);
 
   return (
     <div
