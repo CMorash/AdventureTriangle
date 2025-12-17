@@ -108,9 +108,11 @@ export async function ensureTablesExist() {
 
 export async function saveRegistration(registration: BetaRegistration): Promise<void> {
   if (USE_DB) {
+    // Cast interests to any to satisfy the strict template literal types of @vercel/postgres
+    // The underlying driver handles string[] correctly for TEXT[] columns
     await sql`
       INSERT INTO registrations (id, name, email, interests, created_at)
-      VALUES (${registration.id}, ${registration.name}, ${registration.email}, ${registration.interests}, ${registration.createdAt})
+      VALUES (${registration.id}, ${registration.name}, ${registration.email}, ${registration.interests as any}, ${registration.createdAt})
     `;
   } else {
     const registrations = await readJsonFile<BetaRegistration>('registrations.json');
